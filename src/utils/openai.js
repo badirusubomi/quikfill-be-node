@@ -1,0 +1,25 @@
+import axios from "axios";
+
+export async function generateResponse(fieldLabel, userProfile) {
+	const prompt = `
+You are helping fill a job application. Given the field "${fieldLabel}" and the user profile:
+${JSON.stringify(userProfile, null, 2)}
+Generate a short but compelling answer.`;
+
+	const response = await axios.post(
+		"https://api.openai.com/v1/chat/completions",
+		{
+			model: "gpt-4",
+			messages: [{ role: "user", content: prompt }],
+			temperature: 0.7,
+		},
+		{
+			headers: {
+				Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+		}
+	);
+
+	return response.data.choices[0].message.content.trim();
+}
