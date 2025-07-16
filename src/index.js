@@ -1,10 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-
+import "reflect-metadata";
 import authRoutes from "./routes/auth.js";
+import queryRoutes from "./routes/query.js";
+import uploadRoutes from "./routes/upload.js";
 import generateRoutes from "./routes/generate.js";
 import { verifyRefreshToken } from "./utils/jwt.js";
+import AppDataSource from "./lib/database/datasource.js";
 
 dotenv.config();
 const app = express();
@@ -13,8 +16,10 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/generate", generateRoutes);
+app.use("/upload", uploadRoutes);
+app.use("/query", queryRoutes);
 
-const authExceptRoutes = ["/login", "/signup"];
+const authExceptRoutes = ["auth/login", "auth/signup"];
 
 app.use((req, res, next) => {
 	if (!authExceptRoutes.includes(req.baseUrl)) {
@@ -34,6 +39,14 @@ app.use((req, res, next) => {
 		next();
 	}
 });
+
+AppDataSource.initialize()
+	.then(() => {
+		console.log("Data Source has been initialized!");
+	})
+	.catch((err) => {
+		console.error("Error during Data Source initialization", err);
+	});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

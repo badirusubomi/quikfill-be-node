@@ -1,12 +1,32 @@
 import axios from "axios";
 
-export async function generateResponse(fieldLabel, userProfile) {
-	const prompt = `
-You are helping fill a job application. Given the field "${fieldLabel}" and the user profile:
-${JSON.stringify(userProfile, null, 2)}
-Generate a short but compelling answer.`;
+export async function getEmbedding(text) {
+	const res = await axios.post(
+		"https://api.openai.com/v1/embeddings",
+		{
+			input: text,
+			model: "text-embedding-ada-002",
+		},
+		{
+			headers: {
+				Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+			},
+		}
+	);
 
-	const response = await axios.post(
+	return res.data.data[0].embedding;
+}
+
+export async function generateAnswer(context, fieldPrompt) {
+	const prompt = `
+You're filling a job application. Based on the context:
+"${context}"
+
+Answer the question:
+"${fieldPrompt}"
+`;
+
+	const res = await axios.post(
 		"https://api.openai.com/v1/chat/completions",
 		{
 			model: "gpt-4",
@@ -16,10 +36,9 @@ Generate a short but compelling answer.`;
 		{
 			headers: {
 				Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-				"Content-Type": "application/json",
 			},
 		}
 	);
 
-	return response.data.choices[0].message.content.trim();
+	return res.data.choices[0].message.content.trim();
 }
