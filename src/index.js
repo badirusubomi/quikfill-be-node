@@ -19,10 +19,10 @@ app.use("/generate", generateRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/query", queryRoutes);
 
-const authExceptRoutes = ["auth/login", "auth/signup"];
+const authMiddlewareExceptRoutes = ["auth"];
 
 app.use((req, res, next) => {
-	if (!authExceptRoutes.includes(req.baseUrl)) {
+	if (!authMiddlewareExceptRoutes.filter((url) => req.url.includes(url))) {
 		let token = req.headers["Authorization"];
 		try {
 			let user = verifyRefreshToken(token);

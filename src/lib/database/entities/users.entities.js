@@ -3,7 +3,7 @@ import { UserUploads } from "./user-uploads.entities.js";
 
 export const Users = new EntitySchema({
 	name: "Users",
-	tableName: "users",
+	tableName: "Users",
 	columns: {
 		id: {
 			type: Number,
@@ -26,6 +26,19 @@ export const Users = new EntitySchema({
 		auth_provider: {
 			type: "varchar",
 			length: 100,
+		},
+		id_token: {
+			type: "text",
+			nullable: true,
+		},
+		status: {
+			type: "varchar",
+			length: 255,
+			nullable: false,
+		},
+		picture: {
+			type: "text",
+			nullable: true,
 		},
 	},
 	relations: {
