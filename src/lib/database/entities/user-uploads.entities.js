@@ -1,8 +1,8 @@
 import { EntitySchema } from "typeorm";
-import { Users } from "./users.entities.js";
 
 export const UserUploads = new EntitySchema({
-	name: "UserUploads",
+	name: "user_uploads",
+	tableName: "user_uploads",
 	columns: {
 		id: {
 			type: Number,
@@ -11,34 +11,42 @@ export const UserUploads = new EntitySchema({
 		},
 		createdAt: {
 			type: Date,
+			default: () => "CURRENT_TIMESTAMP",
 		},
 		file_name: {
 			type: String,
 		},
 		file_category: {
 			type: String,
+			nullable: true,
 		},
 		description: {
 			type: String,
+			nullable: true,
 		},
 		upload_address_url: {
 			type: String,
+			nullable: true,
+		},
+		upload_key: {
+			type: String,
+			nullable: true,
 		},
 		file_type: {
 			type: String,
+			nullable: true,
 		},
 		status: {
 			type: String,
+			nullable: true,
 		},
 	},
 	relations: {
 		user: {
-			target: "Users",
 			type: "many-to-one",
-			joinColumn: {
-				name: "user_email",
-				referencedColumnName: "email",
-			},
+			target: "users",
+			joinColumn: true,
+			inverseSide: "user_uploads",
 		},
 	},
 });

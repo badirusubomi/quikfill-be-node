@@ -14,12 +14,6 @@ router.post("/", async (req, res) => {
 	const queryEmbedding = await getEmbedding(fieldPrompt);
 
 	const result = "";
-	// await index.query({
-	// 	namespace: userId,
-	// 	topK: 5,
-	// 	vector: queryEmbedding,
-	// 	includeMetadata: true,
-	// });
 
 	const context = ""; //result.matches.map((match) => match.metadata.text).join("\n");
 	const answer = await generateAnswer(context, fieldPrompt);

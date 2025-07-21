@@ -35,7 +35,7 @@ router.get("/google/callback", async (req, res) => {
 	}
 	const user = userInfo.data;
 
-	const userRepository = datasource.getRepository("Users");
+	const userRepository = datasource.getRepository("users");
 
 	try {
 		const dbUser = await userRepository.findOne({
@@ -75,6 +75,8 @@ router.get("/me", async (req, res) => {
 		return res.status(401).message("Unauthorized");
 	}
 
+	const userRepository = datasource.getRepository("user_uploads");
+
 	const dbUser = await userRepository.findOne({
 		where: { email: user["email"] },
 	});
@@ -96,16 +98,5 @@ router.post("/refresh", async (req, res) => {
 		res.status(401).json({ error: "Invalid or expired refresh token" });
 	}
 });
-
-// router.post("/auth/callback/google", async (req, res) => {
-// 	const { refreshToken } = req.body;
-// 	try {
-// 		const user = verifyRefreshToken(refreshToken);
-// 		const newAccessToken = signAccessToken(user);
-// 		res.json({ accessToken: newAccessToken });
-// 	} catch (err) {
-// 		res.status(401).json({ error: "Invalid or expired refresh token" });
-// 	}
-// });
 
 export default router;

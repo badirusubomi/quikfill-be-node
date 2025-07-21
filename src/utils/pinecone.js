@@ -1,5 +1,6 @@
 import { Pinecone } from "@pinecone-database/pinecone";
+import dotenv from "dotenv";
 
-// const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
+dotenv.config();
 
-// export const index = pinecone.Index(process.env.PINECONE_INDEX);
+export const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });

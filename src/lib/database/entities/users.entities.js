@@ -1,9 +1,8 @@
 import { EntitySchema } from "typeorm";
-import { UserUploads } from "./user-uploads.entities.js";
 
 export const Users = new EntitySchema({
-	name: "Users",
-	tableName: "Users",
+	name: "users",
+	tableName: "users",
 	columns: {
 		id: {
 			type: Number,
@@ -44,11 +43,8 @@ export const Users = new EntitySchema({
 	relations: {
 		user_uploads: {
 			type: "one-to-many",
-			target: "UserUploads",
-			inverseSide: "user", // must match the relation name in UserUploads entity
-			joinColumn: {
-				name: "user_uploads",
-			},
+			target: "user_uploads",
+			inverseSide: "user",
 		},
 	},
 });
