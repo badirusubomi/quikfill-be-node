@@ -101,32 +101,33 @@ router.post("/", async (req, res) => {
 		const results = await Promise.all(
 			data.map(async (field) => {
 				const { fieldIndex, label } = field;
+				if (label) {
+					// Search vector DB with the label as query
+					const vectorDBResponse = await pinecone
+						.index(process.env["PINECONE_INDEX_NAME"])
+						.namespace(user.email)
+						.searchRecords({
+							query: {
+								topK: 3,
+								inputs: { text: label },
+							},
+							fields: ["chunk_text"],
+						});
 
-				// Search vector DB with the label as query
-				const vectorDBResponse = await pinecone
-					.index(process.env["PINECONE_INDEX_NAME"])
-					.namespace(user.email)
-					.searchRecords({
-						query: {
-							topK: 3,
-							inputs: { text: label },
-						},
-						fields: ["chunk_text"],
-					});
+					// Build context string from Pinecone hits
+					const context = vectorDBResponse.result.hits
+						.map((hit) => hit.fields["chunk_text"])
+						.join("\n");
 
-				// Build context string from Pinecone hits
-				const context = vectorDBResponse.result.hits
-					.map((hit) => hit.fields["chunk_text"])
-					.join("\n");
+					// Use Gemini to generate answer using context + label
+					const response = await generateAnswer(context, label);
 
-				// Use Gemini to generate answer using context + label
-				const response = await generateAnswer(context, label);
-
-				return {
-					fieldIndex,
-					label,
-					response,
-				};
+					return {
+						fieldIndex,
+						label,
+						response,
+					}
+				}
 			})
 		);
 
