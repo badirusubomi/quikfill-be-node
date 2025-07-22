@@ -1,13 +1,17 @@
 ### 1. Login
 POST http://localhost:8080/query
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZGlydXN1Ym9taUBnbWFpbC5jb20iLCJpYXQiOjE3NTMxNDYzMjksImV4cCI6MTc1MzE0OTkyOX0.P3LvXe_02iA-FHANj4Jl8PJ6hd1vKILK4lRlwQdZHjY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRyaWZ0d2F5dGVzdHVzZXJAZ21haWwuY29tIiwiaWF0IjoxNzUzMTU0MjA3LCJleHAiOjE3NTMxNTc4MDd9.x9xcuGGtSpCQ5qigU7u4WEg8Y0Bv6KfsSyza_39BWfc
 
 {
     "data": [
         {
-            "formIndex": "1",
-            "labels": ["Relevant job experience", "Why should we hire you?"]
-        }        
+            "fieldIndex": "1",
+            "label": "Relevant job experience"
+        },
+        {
+            "fieldIndex": "2",
+            "label": "Why should we hire you?"
+        }
     ]
 }
