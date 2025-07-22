@@ -44,7 +44,7 @@ const { PredictionServiceClient } = aiplatform.v1;
 // }
 
 export async function generateAnswer(context, fieldPrompt) {
-	const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+	const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 	const prompt = `
 	You are an agent being prompted to fill a job application form online.
