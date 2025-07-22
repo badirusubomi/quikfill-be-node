@@ -56,7 +56,7 @@ export async function generateAnswer(context, fieldPrompt) {
 	Here is the form field label:
 	"${fieldPrompt}"
 
-	Generate a short, personalized answer. Do not include preample in your response. Your response will be passed directly into the form answer field
+	Generate a short, personalized answer. Do not include preamble in your response. Your response will be passed directly into the form answer field
 	
 	If no context is provided, provide vague but prompt relevant response for the application form
 	`;
