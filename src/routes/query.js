@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getEmbedding, generateAnswer } from "../utils/openai.js";
+import { generateAnswer } from "../utils/gemini.js";
 import { pinecone } from "../utils/pinecone.js";
 
 const router = Router();
@@ -50,11 +50,10 @@ router.post("/", async (req, res) => {
 							.map((hit) => hit.fields["chunk_text"])
 							.join("\n");
 
-						formLabelResponse["response"] = "response with context: " + context;
-						//  await generateAnswer(
-						// 	context,
-						// 	formLabelResponse["query"]
-						// );
+						formLabelResponse["response"] = await generateAnswer(
+							context,
+							labelEntry.query
+						);
 
 						return formLabelResponse;
 					}
