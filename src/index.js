@@ -5,7 +5,7 @@ import "reflect-metadata";
 import authRoutes from "./routes/auth.js";
 import queryRoutes from "./routes/query.js";
 import uploadRoutes from "./routes/upload.js";
-import generateRoutes from "./routes/generate.js";
+// import generateRoutes from "./routes/generate.js";
 import { verifyRefreshToken } from "./utils/jwt.js";
 import AppDataSource from "./lib/database/datasource.js";
 import aws from "aws-sdk";
@@ -54,7 +54,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/generate", generateRoutes);
+// app.use("/generate", generateRoutes);
 app.use("/upload", uploadRoutes);
 app.use("/query", queryRoutes);
 

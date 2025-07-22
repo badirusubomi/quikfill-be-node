@@ -1,24 +1,84 @@
-import express from "express";
+import { Router } from "express";
 import { getEmbedding, generateAnswer } from "../utils/openai.js";
-// import { index } from "../utils/pinecone.js";
-import jwt from "jsonwebtoken";
+import { pinecone } from "../utils/pinecone.js";
 
-const router = express.Router();
+const router = Router();
 
 router.post("/", async (req, res) => {
-	const token = req.headers.authorization?.split(" ")[1];
-	const user = jwt.verify(token, process.env.JWT_SECRET);
-	const userId = user.sub;
+	const user = req.user;
 
-	const { fieldPrompt } = req.body;
-	const queryEmbedding = await getEmbedding(fieldPrompt);
+	const data = req.body?.data;
+	if (!data) {
+		return res.status(404).statusMessage("Data not attached");
+	}
+	const queryEmbeddings = data.map((form) => {
+		let index = form.formIndex;
+		let labels = form.labels;
+		let entries = labels.map((label) => ({
+			formIndex: index,
+			label: label,
+			query: label,
+		}));
+		return [
+			...entries,
+			// embedding: await getEmbedding(prompt.query),
+		];
+	});
+	let llmQueryResponsePromises;
 
-	const result = "";
+	try {
+		llmQueryResponsePromises = await queryEmbeddings.map(
+			async (formQueryEmbed) => {
+				let llmQueryResponsesPromises = await formQueryEmbed.map(
+					async (labelEntry) => {
+						let formLabelResponse = { ...labelEntry };
 
-	const context = ""; //result.matches.map((match) => match.metadata.text).join("\n");
-	const answer = await generateAnswer(context, fieldPrompt);
+						let vectorDBResponse = await pinecone
+							.index(process.env["PINECONE_INDEX_NAME"])
+							.namespace(user.email)
+							.searchRecords({
+								query: {
+									topK: 3,
+									inputs: {
+										text: labelEntry.query,
+									},
+								},
+								fields: ["chunk_text"],
+							});
 
-	res.json({ answer });
+						let context = await vectorDBResponse.result.hits
+							.map((hit) => hit.fields["chunk_text"])
+							.join("\n");
+
+						formLabelResponse["response"] = "response with context: " + context;
+						//  await generateAnswer(
+						// 	context,
+						// 	formLabelResponse["query"]
+						// );
+
+						return formLabelResponse;
+					}
+				);
+				const resolvedLlmQueryResponses = await Promise.all(
+					llmQueryResponsesPromises
+				);
+
+				console.log(resolvedLlmQueryResponses);
+				return {
+					formIndex: resolvedLlmQueryResponses[0]["formIndex"],
+					responses: [...resolvedLlmQueryResponses],
+				};
+			}
+		);
+
+		let llmQueryResponse = await Promise.all(llmQueryResponsePromises);
+
+		return res.json({ data: llmQueryResponse });
+	} catch (e) {
+		console.log("Error fetching LLM query responses", e);
+		res.status(500).json({ error: "Failed to fetch LLM query responses." });
+		throw e;
+	}
 });
 
 export default router;

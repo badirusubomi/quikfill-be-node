@@ -1,2 +1,17 @@
 ### 1. Login
-POST https://localhost:8080/login
+POST http://localhost:8080/query
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZGlydXN1Ym9taUBnbWFpbC5jb20iLCJpYXQiOjE3NTMxNDIwMzIsImV4cCI6MTc1MzE0NTYzMn0.t6NF5EbZZaJo_0rmnq1PhMp4IdCHA4hO8pArnT45n0s
+
+{
+    "data": [
+        {
+            "formIndex": "1",
+            "labels": ["experience", "label2", "label3"]
+        },
+        {
+            "formIndex": "2",
+            "labels": ["label1", "label2", "label3"]
+        }
+    ]
+}

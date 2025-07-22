@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_TOKEN_EXPIRY = "15m";
+const ACCESS_TOKEN_EXPIRY = "1hr";
 const REFRESH_TOKEN_EXPIRY = "30d";
 
 export function signAccessToken(user) {
