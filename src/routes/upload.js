@@ -5,7 +5,7 @@ import { pinecone } from "../utils/pinecone.js";
 import { verifyRefreshToken } from "../utils/jwt.js";
 import datasource from "../lib/database/datasource.js";
 import multerS3 from "multer-s3";
-import { S3 } from "@aws-sdk/client-s3";
+import { S3, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3 = new S3({ region: process.env.S3_REGION });
 
@@ -29,6 +29,96 @@ const router = express.Router();
 const uploadCategory = {
 	USER_UPLOAD: "user-upload",
 };
+
+router.get("/", async (req, res) => {
+	const uploadRepo = await datasource.getRepository("user_uploads");
+
+	const uploadedFiles = await uploadRepo.find({
+		where: {
+			user: {
+				email: req.user.email,
+			},
+		},
+	});
+
+	if (uploadedFiles.length === 0) {
+		return res.status(404).message({ message: "No files found" });
+	}
+	let retUploads = uploadedFiles.map((entry) => {
+		return {
+			fileName: entry.file_name,
+			id: entry.id,
+			url: entry.upload_address_url,
+		};
+	});
+
+	return res.json({ message: "Files found", data: retUploads });
+});
+
+router.get("/:id", async (req, res) => {
+	const uploadRepo = await datasource.getRepository("user_uploads");
+
+	const uploadedFile = await uploadRepo.findOneBy({
+		id: req.params.id,
+		user: { email: req.user.email },
+	});
+
+	if (!uploadedFile) {
+		return res.status(404).json({ message: "File not found" });
+	}
+
+	return res.json({
+		message: "File found",
+		data: {
+			fileName: uploadedFile.file_name,
+			id: uploadedFile.id,
+			url: uploadedFile.upload_address_url,
+		},
+	});
+});
+
+router.delete("/:id", async (req, res) => {
+	const uploadRepo = await datasource.getRepository("user_uploads");
+
+	const uploadedFile = await uploadRepo.findOneBy({
+		id: req.params.id,
+		user: { email: req.user.email },
+	});
+
+	if (!uploadedFile) {
+		return res.status(404).json({ message: "File not found" });
+	}
+
+	try {
+		const deleteObjectResult = await s3.deleteObject(
+			// TO DO: add bucket field to user_uploads table
+			{ Bucket: process.env.S3_BUCKET, Key: uploadedFile.upload_key }
+		);
+
+		if (deleteObjectResult.metadata.httpStatusCode === 204) {
+			let uploadDeleteResult = await uploadRepo.delete({
+				id: uploadedFile.id,
+			});
+
+			// To do: delete references in pinecone db
+
+			return res.json({
+				message: "File succesfully deleted",
+				data: {
+					fileName: uploadedFile.file_name,
+					id: uploadedFile.id,
+					url: uploadedFile.upload_address_url,
+				},
+			});
+		}
+	} catch (e) {
+		console.log("An error occurred while deleting s3 object: ", e);
+		res
+			.status(500)
+			.json({ message: "An error occured while deleting resource" });
+		throw e;
+	}
+});
 
 router.post("/", upload.single("file"), async (req, res) => {
 	// Accept sonly pdf for now

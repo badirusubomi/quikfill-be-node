@@ -1,8 +1,7 @@
 ### 1. Login
 POST http://localhost:8080/query
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRyaWZ0d2F5dGVzdHVzZXJAZ21haWwuY29tIiwiaWF0IjoxNzUzMjEzMTA5LCJleHAiOjE3NTMyMTY3MDl9.fTpyPAkT4LakyIxW0DamMuztasELadLvBkEqoduIEaQ
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZG9vc3BpY2VAZ21haWwuY29tIiwiaWF0IjoxNzUzMjQ3MjE0LCJleHAiOjE3NTMyNTA4MTR9.2Jfde3cDnbzF-fyTijQOg8TRBOJ4h_1FfAIlWBFzPlY
 {
     "data": [
         {
@@ -15,3 +14,24 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRyaWZ0d
         }
     ]
 }
+
+
+
+### Get all uploads
+GET http://localhost:8080/upload
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZG9vc3BpY2VAZ21haWwuY29tIiwiaWF0IjoxNzUzMjQ3MjE0LCJleHAiOjE3NTMyNTA4MTR9.2Jfde3cDnbzF-fyTijQOg8TRBOJ4h_1FfAIlWBFzPlY
+
+
+### Get Uploaded resume with id: x
+GET http://localhost:8080/upload/4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZG9vc3BpY2VAZ21haWwuY29tIiwiaWF0IjoxNzUzMjQ3MjE0LCJleHAiOjE3NTMyNTA4MTR9.2Jfde3cDnbzF-fyTijQOg8TRBOJ4h_1FfAIlWBFzPlY
+
+
+
+### Delete Uploaded resume with id: x
+DELETE http://localhost:8080/upload/5
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImJhZG9vc3BpY2VAZ21haWwuY29tIiwiaWF0IjoxNzUzMjQ3MjE0LCJleHAiOjE3NTMyNTA4MTR9.2Jfde3cDnbzF-fyTijQOg8TRBOJ4h_1FfAIlWBFzPlY
+
