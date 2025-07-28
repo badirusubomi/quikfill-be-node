@@ -120,19 +120,19 @@ router.post("/", async (req, res) => {
 						.join("\n");
 
 					// Use Gemini to generate answer using context + label
-					const response = await generateAnswer(context, label);
+					const response = await generateAnswer(context, label, req.user);
 
 					return {
 						fieldIndex,
 						label,
 						response,
-					}
+					};
 				}
 			})
 		);
 
 		// Respond with the generated answers
-		console.log("Generated responses:", results);
+		// console.log("Generated responses:", results);
 		if (results.length === 0) {
 			return res.status(404).json({ error: "No relevant information found." });
 		}

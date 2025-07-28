@@ -33,7 +33,22 @@ router.get("/google/callback", async (req, res) => {
 	if (!userInfo) {
 		return res.status(400).message("Login Failed");
 	}
+
 	const user = userInfo.data;
+
+	const betaUserRepository = datasource.getRepository("beta_users");
+
+	let betaUser = betaUserRepository.findOne({
+		where: {
+			email: user.email,
+		},
+	});
+
+	if (!betaUser) {
+		console.log(e);
+		res.status(400).json({ message: "Not a beta user" });
+		return;
+	}
 
 	const userRepository = datasource.getRepository("users");
 
@@ -56,47 +71,71 @@ router.get("/google/callback", async (req, res) => {
 		const accessToken = signAccessToken(user);
 		const refreshToken = signRefreshToken(user);
 
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: true, // Use HTTPS in production
+			sameSite: "Lax", // or 'Strict' or 'None' if cross-origin
+			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+		});
+
 		// Now redirect the user (from backend) back to the extension with the token
 		res.redirect(
-			`https://${process.env["EXTENSION_ID"]}.chromiumapp.org/?accessToken=${accessToken}&refresh_token=${refreshToken}`
+			`https://${process.env["EXTENSION_ID"]}.chromiumapp.org/?accessToken=${accessToken}`
 		);
 	} catch (err) {
-		console.error(err.response?.data || err.message);
+		console.error(err);
 		res.status(400).json({ error: "OAuth login failed" });
 	}
 });
 
-router.get("/me", async (req, res) => {
-	const { accessToken } = req.headers["authorization"];
-	let user;
-	try {
-		user = verifyRefreshToken(accessToken);
-	} catch (e) {
-		return res.status(401).message("Unauthorized");
+// router.get("/me", async (req, res) => {
+// 	const { accessToken } = req.headers["authorization"];
+// 	let user;
+// 	try {
+// 		user = verifyRefreshToken(accessToken);
+// 	} catch (e) {
+// 		return res.status(401).message("Unauthorized");
+// 	}
+
+// 	const userRepository = datasource.getRepository("user_uploads");
+
+// 	const dbUser = await userRepository.findOne({
+// 		where: { email: user["email"] },
+// 	});
+
+// 	if (dbUser) {
+// 		return res.json({ user });
+// 	}
+
+// 	return res.status(404).message("User not found");
+// });
+
+router.post("/refresh-token", async (req, res) => {
+	const refreshToken = req.cookies?.refreshToken;
+
+	if (!refreshToken) {
+		return res.status(401).json({ error: "Refresh token missing" });
 	}
 
-	const userRepository = datasource.getRepository("user_uploads");
-
-	const dbUser = await userRepository.findOne({
-		where: { email: user["email"] },
-	});
-
-	if (dbUser) {
-		return res.json({ user });
-	}
-
-	return res.status(404).message("User not found");
-});
-
-router.post("/refresh", async (req, res) => {
-	const { refreshToken } = req.body;
 	try {
-		const user = verifyRefreshToken(refreshToken);
-		const newAccessToken = signAccessToken(user);
+		const userPayload = await verifyRefreshToken(refreshToken);
+
+		const newAccessToken = await signAccessToken(userPayload);
+
 		res.json({ accessToken: newAccessToken });
 	} catch (err) {
+		console.error("Refresh failed:", err.message);
 		res.status(401).json({ error: "Invalid or expired refresh token" });
 	}
+});
+
+router.post("/logout", (req, res) => {
+	res.clearCookie("refreshToken", {
+		httpOnly: true,
+		secure: true,
+		sameSite: "Lax",
+	});
+	res.status(200).json({ message: "Logged out" });
 });
 
 export default router;

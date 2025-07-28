@@ -43,14 +43,18 @@ const { PredictionServiceClient } = aiplatform.v1;
 // 	return allEmbeddings;
 // }
 
-export async function generateAnswer(context, fieldPrompt) {
-	const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+export async function generateAnswer(context, fieldPrompt, user) {
+	const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
 	const prompt = `
 	You are an agent being prompted to fill a job application form online.
 	
 
 	Here is relevant Context:
+	Client: 
+	Full name: "${user.full_name}"
+	email: "${user.email}"
+	More context:
 	"${context}"
 
 	Here is the form field label:
